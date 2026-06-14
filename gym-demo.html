@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gym Membership Invoice — Hassan Mahmoud</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0d1117; color: #c9d1d9; font-family: 'Inter', sans-serif; min-height: 100vh; padding: 2rem 1rem; }
+  header { text-align: center; margin-bottom: 2rem; }
+  header .back { display: inline-block; color: #58a6ff; text-decoration: none; font-size: 0.85rem; margin-bottom: 1rem; font-family: 'JetBrains Mono', monospace; }
+  header h1 { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; color: #f0f6fc; font-weight: 700; }
+  header p { color: #8b949e; font-size: 0.9rem; margin-top: 0.4rem; }
+  .terminal { max-width: 700px; margin: 0 auto; background: #161b22; border: 1px solid #30363d; border-radius: 10px; overflow: hidden; }
+  .terminal-bar { background: #21262d; padding: 0.6rem 1rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid #30363d; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.red { background: #ff5f57; } .dot.yellow { background: #febc2e; } .dot.green { background: #28c840; }
+  .terminal-title { flex: 1; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #8b949e; }
+  .output { padding: 1.2rem; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.7; min-height: 300px; max-height: 460px; overflow-y: auto; }
+  .output .line { margin-bottom: 0.1rem; }
+  .output .prompt { color: #3fb950; } .output .info { color: #79c0ff; } .output .warn { color: #f0883e; } .output .err { color: #ff7b72; } .output .sep { color: #30363d; }
+  .input-row { display: flex; align-items: center; border-top: 1px solid #30363d; padding: 0.8rem 1.2rem; gap: 0.6rem; }
+  .input-row span { font-family: 'JetBrains Mono', monospace; color: #3fb950; font-size: 0.85rem; white-space: nowrap; }
+  .input-row input { flex: 1; background: transparent; border: none; outline: none; color: #f0f6fc; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+  .input-row button { background: #238636; color: #fff; border: none; border-radius: 6px; padding: 0.35rem 0.9rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; cursor: pointer; }
+  .input-row button:hover { background: #2ea043; }
+  .hint { max-width: 700px; margin: 1rem auto 0; text-align: center; font-size: 0.8rem; color: #8b949e; font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="resume">← Back to Resume</a>
+  <h1>// Gym Membership Invoice</h1>
+  <p>Interactive demo — C++ project by Hassan Mahmoud</p>
+</header>
+<div class="terminal">
+  <div class="terminal-bar">
+    <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+    <div class="terminal-title">gym-demo.exe</div>
+  </div>
+  <div class="output" id="output"></div>
+  <div class="input-row">
+    <span>$&gt;</span>
+    <input type="text" id="userInput" placeholder="Type your input here..." autocomplete="off" />
+    <button onclick="submitInput()">Enter</button>
+  </div>
+</div>
+<div class="hint">Press Enter or click the button to submit input</div>
+
+<script>
+  let invoiceId = 700100;
+  let state = 'ask_id';
+  let buf = {};
+
+  const plans = { basic: 60.0, standard: 95.0, premium: 140.0, elite: 220.0 };
+
+  const out = document.getElementById('output');
+  const inp = document.getElementById('userInput');
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') submitInput(); });
+
+  function print(text, cls = '') {
+    const d = document.createElement('div');
+    d.className = 'line' + (cls ? ' ' + cls : '');
+    d.textContent = text;
+    out.appendChild(d);
+    out.scrollTop = out.scrollHeight;
+  }
+
+  function submitInput() {
+    const val = inp.value.trim();
+    if (!val) return;
+    print('$ ' + val, 'prompt');
+    inp.value = '';
+    handle(val);
+  }
+
+  function handle(val) {
+    if (state === 'ask_id') {
+      const id = parseInt(val);
+      if (isNaN(id) || id < 10000) { print('ID must be at least 5 digits.', 'err'); return; }
+      buf.id = id; state = 'ask_months';
+      print('Total Membership Months (1-24):', 'prompt'); return;
+    }
+    if (state === 'ask_months') {
+      const m = parseInt(val);
+      if (isNaN(m) || m < 1 || m > 24) { print('Must be between 1 and 24.', 'err'); return; }
+      buf.months = m; state = 'ask_plan';
+      print('Enter plan type: basic / standard / premium / elite', 'prompt'); return;
+    }
+    if (state === 'ask_plan') {
+      const p = val.toLowerCase();
+      if (!plans[p]) { print('Invalid plan. Choose: basic, standard, premium, elite.', 'err'); return; }
+      buf.plan = p; state = 'ask_timing';
+      print('Signup timing: early / ontime / late', 'prompt'); return;
+    }
+    if (state === 'ask_timing') {
+      const t = val.toLowerCase();
+      if (t !== 'early' && t !== 'ontime' && t !== 'late') { print('Must be: early, ontime, or late.', 'err'); return; }
+      buf.timing = t; state = 'ask_virtual';
+      print('Virtual-only membership? (yes / no):', 'prompt'); return;
+    }
+    if (state === 'ask_virtual') {
+      const v = val.toLowerCase();
+      if (v !== 'yes' && v !== 'no') { print('Must be yes or no.', 'err'); return; }
+      buf.isVirtual = v === 'yes';
+      computeAndDisplay();
+      return;
+    }
+    if (state === 'done') {
+      if (val.toLowerCase() === 'restart') { buf = {}; invoiceId++; print(''); boot(); }
+    }
+  }
+
+  function computeAndDisplay() {
+    const perMonth = plans[buf.plan];
+    const baseName = buf.plan.charAt(0).toUpperCase() + buf.plan.slice(1) + ' per month';
+    const baseTotal = perMonth * buf.months;
+    let fees = [];
+    let total = 0;
+
+    fees.push({ label: baseName, amount: perMonth });
+    fees.push({ label: 'Base Membership (' + buf.months + ' months)', amount: baseTotal });
+    total += perMonth + baseTotal;
+
+    if (buf.timing === 'early') {
+      const discount = baseTotal * 0.07;
+      fees.push({ label: 'Early Registration discount', amount: -discount });
+      total -= discount;
+    } else if (buf.timing === 'late') {
+      const surcharge = baseTotal * 0.10;
+      fees.push({ label: 'Late signup surcharge', amount: surcharge });
+      total += surcharge;
+    }
+
+    if (buf.isVirtual) {
+      const onlineDiscount = baseTotal * 0.12;
+      fees.push({ label: 'Online/Virtual discount', amount: -onlineDiscount });
+      total -= onlineDiscount;
+    }
+
+    print('');
+    print('════════════════════════════════════════════', 'info');
+    print('  MEMBERSHIP INVOICE #' + invoiceId, 'info');
+    print('  Member ID: ' + buf.id, 'info');
+    print('════════════════════════════════════════════', 'info');
+    fees.forEach(f => {
+      const label = f.label.padEnd(34);
+      const sign = f.amount < 0 ? '-$' : ' $';
+      print('  ' + label + sign + Math.abs(f.amount).toFixed(2));
+    });
+    print('────────────────────────────────────────────', 'sep');
+    if (total > 5000) {
+      print('  ⚠ Please contact the Billing Office.', 'warn');
+    } else {
+      print('  YOUR MEMBERSHIP BILL:          $' + total.toFixed(2), 'prompt');
+    }
+    print('════════════════════════════════════════════', 'info');
+    print('');
+    print('Enter "restart" to generate another invoice.', 'prompt');
+    state = 'done';
+  }
+
+  function boot() {
+    print('Gym Membership Invoice System', 'info');
+    print('C++ Project — Hassan Mahmoud', 'info');
+    print('');
+    print('Plans:  Basic $60/mo  |  Standard $95/mo  |  Premium $140/mo  |  Elite $220/mo', 'info');
+    print('');
+    print('Enter Member ID (5+ digits):', 'prompt');
+    state = 'ask_id';
+  }
+
+  boot();
+</script>
+</body>
+</html>
