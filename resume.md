@@ -33,24 +33,43 @@ Dearborn, MI | (313) 445-447 | [hhassanm@umich.edu](mailto:hhassanm@umich.edu) |
 
 ## Technical Projects
 
-### Repair Management Program — C/C++
+### Student Athlete Management Program — C++
 
-* Designed a menu-driven repair management program to organize customer records, repair services, repair status updates, and transaction-style data.
-* Applied classes, constructors, member functions, conditionals, loops, structured user input, and modular program design to model real-world repair workflows.
-* Separated input, processing, and output responsibilities across functions to improve readability, maintainability, and debugging.
-[▶ Try the Demo](retail-demo)
+* Developed a student records system that demonstrates a strong understanding 
+  of object-oriented design, applying class structure, encapsulation, and 
+  operator overloading to model real-world relationships between students 
+  and their athletic involvement.
+* Applied fee tracking and multi-sport enrollment logic to reflect practical 
+  software design thinking — organizing data and behavior in a way that mirrors 
+  how real systems manage people and costs.
+
+* [▶ Try the Demo](student-demo)
+
+### Gym Membership Invoice Program — C++
+
+* Built a membership billing system that reflects a solid grasp of 
+  object-oriented principles, using class composition and operator overloading 
+  to separate concerns cleanly and model a real invoicing workflow.
+* Applied dynamic pricing logic across multiple membership tiers, handling 
+  discounts, surcharges, and billing conditions in a way that demonstrates 
+  both programming maturity and an ability to translate real-world business 
+  rules into working code.
+
+* [▶ Try the Demo](gym-demo)
 
 ### Retail / Product Management Program — C/C++
 
 * Built a product management program to organize product information, process customer selections, calculate totals, and format transaction-style output.
 * Used arrays/vectors, loops, conditionals, functions, and debugging to structure program logic and verify accurate calculations and user interaction.
-[▶ Try the Demo](retail-demo)
+
+* [▶ Try the Demo](retail-demo)
 
 ### Veterinary Management Program — C/C++
 
 * Developed a record-management application to organize animal and client-related information using structured program logic and object-oriented design.
 * Implemented logic for storing, updating, searching, and displaying records in a readable format while strengthening encapsulation, debugging, and program design skills.
-[▶ Try the Demo](vet-demo)
+  
+* [▶ Try the Demo](vet-demo)
 
 ### Introductory Programming Projects — C and C++
 
