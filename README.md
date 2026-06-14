@@ -1,6 +1,5 @@
 
 
-# Hassan Mahmoud
 
 Dearborn, MI | Computer Science Student | Aspiring Software Engineer
 
