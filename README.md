@@ -15,4 +15,4 @@ C | C++ | Swift | MATLAB | GitHub | Xcode | Visual Studio Code
 
 ---
 
-[Click here for my resume!](resume)
+[Click here for my resume!](resume(1))
