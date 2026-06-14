@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retail Management Demo — Hassan Mahmoud</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0d1117;
+    color: #c9d1d9;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  header .back {
+    display: inline-block;
+    color: #58a6ff;
+    text-decoration: none;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  header h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.4rem;
+    color: #f0f6fc;
+    font-weight: 700;
+  }
+
+  header p {
+    color: #8b949e;
+    font-size: 0.9rem;
+    margin-top: 0.4rem;
+  }
+
+  .terminal {
+    max-width: 700px;
+    margin: 0 auto;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .terminal-bar {
+    background: #21262d;
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid #30363d;
+  }
+
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.red { background: #ff5f57; }
+  .dot.yellow { background: #febc2e; }
+  .dot.green { background: #28c840; }
+
+  .terminal-title {
+    flex: 1;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #8b949e;
+  }
+
+  .output {
+    padding: 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    min-height: 300px;
+    max-height: 420px;
+    overflow-y: auto;
+  }
+
+  .output .line { margin-bottom: 0.1rem; }
+  .output .prompt { color: #3fb950; }
+  .output .info { color: #79c0ff; }
+  .output .warn { color: #f0883e; }
+  .output .err { color: #ff7b72; }
+  .output .sep { color: #30363d; }
+
+  .input-row {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid #30363d;
+    padding: 0.8rem 1.2rem;
+    gap: 0.6rem;
+  }
+
+  .input-row span {
+    font-family: 'JetBrains Mono', monospace;
+    color: #3fb950;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .input-row input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #f0f6fc;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+  }
+
+  .input-row button {
+    background: #238636;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.35rem 0.9rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .input-row button:hover { background: #2ea043; }
+
+  .hint {
+    max-width: 700px;
+    margin: 1rem auto 0;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #8b949e;
+    font-family: 'JetBrains Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back" href="resume">← Back to Resume</a>
+  <h1>// Retail Management Program</h1>
+  <p>Interactive demo — C++ project by Hassan Mahmoud</p>
+</header>
+
+<div class="terminal">
+  <div class="terminal-bar">
+    <div class="dot red"></div>
+    <div class="dot yellow"></div>
+    <div class="dot green"></div>
+    <div class="terminal-title">retail-demo.exe</div>
+  </div>
+  <div class="output" id="output"></div>
+  <div class="input-row">
+    <span>$&gt;</span>
+    <input type="text" id="userInput" placeholder="Type your input here..." autocomplete="off" />
+    <button onclick="submitInput()">Enter</button>
+  </div>
+</div>
+
+<div class="hint">Press Enter or click the button to submit input</div>
+
+<script>
+  const MAX = 20;
+  let inventory = [];
+  let state = 'menu';
+  let addStep = 0;
+  let addBuffer = {};
+  let updateStep = 0;
+  let updateBuffer = {};
+  let updateIndex = -1;
+
+  const out = document.getElementById('output');
+  const inp = document.getElementById('userInput');
+
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') submitInput(); });
+
+  function print(text, cls = '') {
+    const d = document.createElement('div');
+    d.className = 'line' + (cls ? ' ' + cls : '');
+    d.textContent = text;
+    out.appendChild(d);
+    out.scrollTop = out.scrollHeight;
+  }
+
+  function showMenu() {
+    print('');
+    print('1) Add an item to inventory', 'info');
+    print('2) Display all items in inventory', 'info');
+    print('3) Check if an item is in inventory', 'info');
+    print('4) Display items that need reordering', 'info');
+    print('5) Update an item in inventory', 'info');
+    print('');
+    print('Enter a choice (1-5):', 'prompt');
+    state = 'menu';
+  }
+
+  function submitInput() {
+    const val = inp.value.trim();
+    if (!val) return;
+    print('$ ' + val, 'prompt');
+    inp.value = '';
+    handle(val);
+  }
+
+  function handle(val) {
+    if (state === 'menu') {
+      const c = parseInt(val);
+      if (c === 1) { startAdd(); }
+      else if (c === 2) { displayAll(); }
+      else if (c === 3) { startCheck(); }
+      else if (c === 4) { displayReorder(); }
+      else if (c === 5) { startUpdate(); }
+      else { print('Invalid choice. Enter 1-5.', 'err'); showMenu(); }
+      return;
+    }
+
+    if (state === 'add') { handleAdd(val); return; }
+    if (state === 'check') { handleCheck(val); return; }
+    if (state === 'update_find') { handleUpdateFind(val); return; }
+    if (state === 'update') { handleUpdate(val); return; }
+  }
+
+  function startAdd() {
+    if (inventory.length >= MAX) { print('Inventory full!', 'err'); showMenu(); return; }
+    addBuffer = {};
+    addStep = 0;
+    state = 'add';
+    print('What is the description?', 'prompt');
+  }
+
+  function handleAdd(val) {
+    if (addStep === 0) { addBuffer.desc = val; addStep++; print('How many units on hand?', 'prompt'); }
+    else if (addStep === 1) {
+      const n = parseInt(val);
+      if (isNaN(n) || n < 0) { print('Enter a valid number.', 'err'); return; }
+      addBuffer.units = n; addStep++;
+      print('What is the price?', 'prompt');
+    }
+    else if (addStep === 2) {
+      const p = parseFloat(val);
+      if (isNaN(p) || p < 0) { print('Enter a valid price.', 'err'); return; }
+      addBuffer.price = p; addStep++;
+      print('What is the reorder quantity?', 'prompt');
+    }
+    else if (addStep === 3) {
+      const r = parseInt(val);
+      if (isNaN(r) || r < 0) { print('Enter a valid number.', 'err'); return; }
+      addBuffer.reorder = r;
+      inventory.push({ ...addBuffer });
+      print('✓ Item added: ' + addBuffer.desc, 'prompt');
+      showMenu();
+    }
+  }
+
+  function displayAll() {
+    if (inventory.length === 0) { print('No items in inventory.', 'warn'); showMenu(); return; }
+    inventory.forEach((item, i) => {
+      print('───────────────────────', 'sep');
+      print('Item #' + (i + 1));
+      print('Name:          ' + item.desc);
+      print('Units on Hand: ' + item.units);
+      print('Price:         $' + item.price.toFixed(2));
+      print('Reorder Qty:   ' + item.reorder);
+    });
+    print('───────────────────────', 'sep');
+    showMenu();
+  }
+
+  function startCheck() {
+    state = 'check';
+    print('What item would you like to check?', 'prompt');
+  }
+
+  function handleCheck(val) {
+    const found = inventory.find(i => i.desc.toLowerCase() === val.toLowerCase());
+    if (found) {
+      print('Quantity of ' + found.desc + ': ' + found.units);
+    } else {
+      print('Item not found in inventory.', 'warn');
+    }
+    showMenu();
+  }
+
+  function displayReorder() {
+    const needs = inventory.filter(i => i.units <= i.reorder);
+    if (needs.length === 0) { print('No items need reordering.', 'prompt'); showMenu(); return; }
+    print('Items that need to be reordered:', 'warn');
+    needs.forEach(i => print('  • ' + i.desc + ' — only ' + i.units + ' left (reorder at ' + i.reorder + ')', 'warn'));
+    showMenu();
+  }
+
+  function startUpdate() {
+    if (inventory.length === 0) { print('No items to update.', 'warn'); showMenu(); return; }
+    state = 'update_find';
+    print('Enter the description of the item to update:', 'prompt');
+  }
+
+  function handleUpdateFind(val) {
+    const idx = inventory.findIndex(i => i.desc.toLowerCase() === val.toLowerCase());
+    if (idx === -1) { print('Item not found.', 'err'); showMenu(); return; }
+    updateIndex = idx;
+    updateBuffer = {};
+    updateStep = 0;
+    state = 'update';
+    print('Found: ' + inventory[idx].desc, 'prompt');
+    print('New units on hand?', 'prompt');
+  }
+
+  function handleUpdate(val) {
+    if (updateStep === 0) {
+      const n = parseInt(val);
+      if (isNaN(n) || n < 0) { print('Enter a valid number.', 'err'); return; }
+      updateBuffer.units = n; updateStep++;
+      print('New price?', 'prompt');
+    } else if (updateStep === 1) {
+      const p = parseFloat(val);
+      if (isNaN(p) || p < 0) { print('Enter a valid price.', 'err'); return; }
+      updateBuffer.price = p; updateStep++;
+      print('New reorder quantity?', 'prompt');
+    } else if (updateStep === 2) {
+      const r = parseInt(val);
+      if (isNaN(r) || r < 0) { print('Enter a valid number.', 'err'); return; }
+      updateBuffer.reorder = r;
+      inventory[updateIndex].units = updateBuffer.units;
+      inventory[updateIndex].price = updateBuffer.price;
+      inventory[updateIndex].reorder = updateBuffer.reorder;
+      print('✓ Item updated.', 'prompt');
+      showMenu();
+    }
+  }
+
+  // Boot
+  print('Retail Inventory Management System', 'info');
+  print('C++ Project — Hassan Mahmoud', 'info');
+  print('');
+  showMenu();
+</script>
+</body>
+</html>

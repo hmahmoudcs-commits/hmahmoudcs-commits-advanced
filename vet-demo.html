@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pet Services Demo — Hassan Mahmoud</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0d1117; color: #c9d1d9; font-family: 'Inter', sans-serif; min-height: 100vh; padding: 2rem 1rem; }
+  header { text-align: center; margin-bottom: 2rem; }
+  header .back { display: inline-block; color: #58a6ff; text-decoration: none; font-size: 0.85rem; margin-bottom: 1rem; font-family: 'JetBrains Mono', monospace; }
+  header h1 { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; color: #f0f6fc; font-weight: 700; }
+  header p { color: #8b949e; font-size: 0.9rem; margin-top: 0.4rem; }
+  .terminal { max-width: 700px; margin: 0 auto; background: #161b22; border: 1px solid #30363d; border-radius: 10px; overflow: hidden; }
+  .terminal-bar { background: #21262d; padding: 0.6rem 1rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid #30363d; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.red { background: #ff5f57; } .dot.yellow { background: #febc2e; } .dot.green { background: #28c840; }
+  .terminal-title { flex: 1; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #8b949e; }
+  .output { padding: 1.2rem; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.7; min-height: 300px; max-height: 460px; overflow-y: auto; }
+  .output .line { margin-bottom: 0.1rem; }
+  .output .prompt { color: #3fb950; } .output .info { color: #79c0ff; } .output .warn { color: #f0883e; } .output .err { color: #ff7b72; } .output .sep { color: #30363d; }
+  .input-row { display: flex; align-items: center; border-top: 1px solid #30363d; padding: 0.8rem 1.2rem; gap: 0.6rem; }
+  .input-row span { font-family: 'JetBrains Mono', monospace; color: #3fb950; font-size: 0.85rem; white-space: nowrap; }
+  .input-row input { flex: 1; background: transparent; border: none; outline: none; color: #f0f6fc; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+  .input-row button { background: #238636; color: #fff; border: none; border-radius: 6px; padding: 0.35rem 0.9rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; cursor: pointer; transition: background 0.15s; }
+  .input-row button:hover { background: #2ea043; }
+  .hint { max-width: 700px; margin: 1rem auto 0; text-align: center; font-size: 0.8rem; color: #8b949e; font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="resume">← Back to Resume</a>
+  <h1>// Pet & Veterinary Management</h1>
+  <p>Interactive demo — C project by Hassan Mahmoud</p>
+</header>
+<div class="terminal">
+  <div class="terminal-bar">
+    <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+    <div class="terminal-title">vet-demo.exe</div>
+  </div>
+  <div class="output" id="output"></div>
+  <div class="input-row">
+    <span>$&gt;</span>
+    <input type="text" id="userInput" placeholder="Type your input here..." autocomplete="off" />
+    <button onclick="submitInput()">Enter</button>
+  </div>
+</div>
+<div class="hint">Press Enter or click the button to submit input</div>
+
+<script>
+  const allServices = [
+    { id: 101, describe: 'Grooming', petType: 1, price: 75.50 },
+    { id: 102, describe: 'Grooming', petType: 2, price: 35.50 },
+    { id: 200, describe: 'Flea and Tick Control', petType: 3, price: 40.00 },
+    { id: 301, describe: 'Spay', petType: 1, price: 250.00 },
+    { id: 302, describe: 'Spay', petType: 2, price: 150.00 },
+    { id: 401, describe: 'Neuter', petType: 1, price: 200.00 },
+    { id: 402, describe: 'Neuter', petType: 2, price: 100.00 },
+    { id: 501, describe: 'Teeth Cleaning', petType: 1, price: 85.00 },
+    { id: 502, describe: 'Teeth Cleaning', petType: 2, price: 65.00 },
+    { id: 600, describe: 'Vaccinations', petType: 3, price: 22.50 },
+    { id: 700, describe: 'Routine Vet Checkup', petType: 3, price: 45.75 },
+    { id: 800, describe: 'Heartworm Test', petType: 3, price: 45.00 },
+    { id: 900, describe: 'Bloodwork', petType: 3, price: 80.00 },
+    { id: 910, describe: 'X-rays', petType: 3, price: 150.00 },
+    { id: 920, describe: 'Wound Treatment', petType: 3, price: 675.00 },
+  ];
+
+  let allPets = [
+    { name: 'Ginger', type: 2, gender: 'F', owner: 'Mary Jones' },
+    { name: 'Sooner', type: 1, gender: 'F', owner: 'Kathy Baker' },
+    { name: 'Jo Jo', type: 2, gender: 'M', owner: 'Chris Dayton' },
+    { name: 'Bandit', type: 1, gender: 'M', owner: 'Jerry Adams' },
+    { name: 'Dozer', type: 1, gender: 'M', owner: 'Eddie Grayson' },
+  ];
+
+  let state = 'ask_owner';
+  let ownerName = '';
+  let petName = '';
+  let newPet = null;
+  let chosenServices = [];
+  let newPetStep = 0;
+
+  const out = document.getElementById('output');
+  const inp = document.getElementById('userInput');
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') submitInput(); });
+
+  function print(text, cls = '') {
+    const d = document.createElement('div');
+    d.className = 'line' + (cls ? ' ' + cls : '');
+    d.textContent = text;
+    out.appendChild(d);
+    out.scrollTop = out.scrollHeight;
+  }
+
+  function submitInput() {
+    const val = inp.value.trim();
+    if (!val) return;
+    print('$ ' + val, 'prompt');
+    inp.value = '';
+    handle(val);
+  }
+
+  function handle(val) {
+    if (state === 'ask_owner') { ownerName = val; state = 'ask_pet'; print('What is the pet\'s name?', 'prompt'); return; }
+
+    if (state === 'ask_pet') {
+      petName = val;
+      const found = allPets.find(p => p.name.toLowerCase() === petName.toLowerCase() && p.owner.toLowerCase() === ownerName.toLowerCase());
+      if (found) {
+        newPet = found;
+        print('Welcome back, ' + found.name + '! (' + (found.type === 1 ? 'Dog' : 'Cat') + ', ' + found.gender + ')', 'info');
+        showServices();
+      } else {
+        print('Pet not found. Creating a new record!', 'warn');
+        newPet = { name: petName, owner: ownerName };
+        newPetStep = 0;
+        state = 'new_pet_type';
+        print('Is this a Dog or Cat? Enter 1 for Dog, 2 for Cat:', 'prompt');
+      }
+      return;
+    }
+
+    if (state === 'new_pet_type') {
+      const t = parseInt(val);
+      if (t !== 1 && t !== 2) { print('Enter 1 for Dog or 2 for Cat.', 'err'); return; }
+      newPet.type = t; state = 'new_pet_gender';
+      print('Enter M for Male or F for Female:', 'prompt');
+      return;
+    }
+
+    if (state === 'new_pet_gender') {
+      const g = val.toUpperCase();
+      if (g !== 'M' && g !== 'F') { print('Enter M or F.', 'err'); return; }
+      newPet.gender = g;
+      allPets.push({ ...newPet });
+      print('✓ New record created for ' + newPet.name + '.', 'prompt');
+      showServices();
+      return;
+    }
+
+    if (state === 'choose_service') {
+      if (val === '0') { showReceipt(); return; }
+      const code = parseInt(val);
+      const svc = allServices.find(s => s.id === code && (s.petType === newPet.type || s.petType === 3));
+      if (!svc) { print('Invalid service code. Try again or enter 0 to finish.', 'err'); return; }
+      chosenServices.push(svc);
+      print('✓ Added: ' + svc.describe + ' ($' + svc.price.toFixed(2) + ')', 'prompt');
+      if (chosenServices.length >= 4) { showReceipt(); return; }
+      print('Add another service code or 0 to finish:', 'prompt');
+      return;
+    }
+
+    if (state === 'done') {
+      if (val.toLowerCase() === 'restart') { reset(); }
+    }
+  }
+
+  function showServices() {
+    chosenServices = [];
+    state = 'choose_service';
+    print('');
+    print('Available services for ' + newPet.name + ':', 'info');
+    print('─────────────────────────────────────────', 'sep');
+    allServices.forEach(s => {
+      if (s.petType === newPet.type || s.petType === 3) {
+        print('  [' + s.id + ']  ' + s.describe.padEnd(22) + '$' + s.price.toFixed(2));
+      }
+    });
+    print('─────────────────────────────────────────', 'sep');
+    print('Enter a service code or 0 to finish:', 'prompt');
+  }
+
+  function showReceipt() {
+    state = 'done';
+    let total = 0;
+    print('');
+    print('════════════════════════════════════════', 'info');
+    print('  RECEIPT — ' + newPet.name + ' (' + newPet.owner + ')', 'info');
+    print('════════════════════════════════════════', 'info');
+    chosenServices.forEach((s, i) => {
+      print('  ' + (i + 1) + '. ' + s.describe.padEnd(22) + '$' + s.price.toFixed(2));
+      total += s.price;
+    });
+    print('────────────────────────────────────────', 'sep');
+    print('  TOTAL:                      $' + total.toFixed(2), 'prompt');
+    print('════════════════════════════════════════', 'info');
+    print('');
+    print('Enter "restart" to serve another customer.', 'prompt');
+  }
+
+  function reset() {
+    ownerName = ''; petName = ''; newPet = null; chosenServices = [];
+    print('');
+    print('─────────────────────────────────────────', 'sep');
+    print('What is the owner\'s name?', 'prompt');
+    state = 'ask_owner';
+  }
+
+  // Boot
+  print('Pet & Veterinary Management System', 'info');
+  print('C Project — Hassan Mahmoud', 'info');
+  print('');
+  print('What is the owner\'s name?', 'prompt');
+</script>
+</body>
+</html>
