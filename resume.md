@@ -38,16 +38,19 @@ Dearborn, MI | (313) 445-447 | [hhassanm@umich.edu](mailto:hhassanm@umich.edu) |
 * Designed a menu-driven repair management program to organize customer records, repair services, repair status updates, and transaction-style data.
 * Applied classes, constructors, member functions, conditionals, loops, structured user input, and modular program design to model real-world repair workflows.
 * Separated input, processing, and output responsibilities across functions to improve readability, maintainability, and debugging.
+[▶ Try the Demo](retail-demo)
 
 ### Retail / Product Management Program — C/C++
 
 * Built a product management program to organize product information, process customer selections, calculate totals, and format transaction-style output.
 * Used arrays/vectors, loops, conditionals, functions, and debugging to structure program logic and verify accurate calculations and user interaction.
+[▶ Try the Demo](retail-demo)
 
-### Dog / Veterinary Management Program — C/C++
+### Veterinary Management Program — C/C++
 
 * Developed a record-management application to organize animal and client-related information using structured program logic and object-oriented design.
 * Implemented logic for storing, updating, searching, and displaying records in a readable format while strengthening encapsulation, debugging, and program design skills.
+[▶ Try the Demo](vet-demo)
 
 ### Introductory Programming Projects — C and C++
 
